@@ -21,6 +21,7 @@
 #
 # HISTORY:
 # 5.2-11.04 (10.08.2011): initial version for SRS 5.2 + Natty (11.04)
+# 5.2-6.0.4 (2012-03-28): version for SRS 5.2 + Squeeze (6.0.4)
 #
 
 #################################################
@@ -28,36 +29,131 @@
 #
 echo "SRS Ubuntu Install Script (SRS: 5.2, Ubuntu: 11.04)"
 echo "Copyright (c) Jens Langner <Jens.Langner@light-speed.de>"
-echo "========================================================"
+echo "Modified for Debian Squeeze by Michal Jirku <box@wejn.org>"
+echo "=========================================================="
+
+# work-around for missing sudo
+if command -v sudo >/dev/null 2>&1; then
+	true
+else
+	eval 'sudo() { "$@"; }'
+fi
 
 # request the user to enter the path to the SRS install zip file
-echo -n "Please enter path of SRS 5.2 zip file (e.g. V26743-01.zip): "
-read SRS_ZIP
+F=V26743-01.zip
+[ -f "`pwd`/$F" ] && SRS_ZIP="`pwd`/$F"
+[ -f "`pwd`/../$F" ] && SRS_ZIP="`pwd`/../$F"
+if [ -z $SRS_ZIP ]; then
+	echo -n "Please enter path of SRS 5.2 zip file (e.g. V26743-01.zip): "
+	read SRS_ZIP
+else
+	echo "Guessed SRS 5.2 zip path: '${SRS_ZIP}'"
+fi
 if [ ! -f "${SRS_ZIP}" ]; then
   echo "specified install file '${SRS_ZIP}' does not exist. aborting."
   exit 0
 fi
 
-# install all required packages first
-echo -n "Installing required Ubuntu packages... "
-sudo apt-get install libldap-2.4-2 libmotif3 module-assistant tk8.4 sun-java6-jre \
-                     ldap-utils nscd gawk iputils-ping ksh unzip libgdbm3 \
-                     libx11-6 libfreetype6 libsasl2-2 libxt6 zlib1g devscripts \
-                     xfonts-base atftpd xfonts-100dpi xfonts-75dpi xfonts-cyrillic wget ed \
-                     x11-xserver-utils tcsh alien dnsutils 2>&1 >/dev/null
-###########
-# install and setup pulseaudio for audio support
-sudo apt-get install pavucontrol pavumeter paman padevchooser paprefs pulseaudio \
-                     pulseaudio-utils pulseaudio-module-gconf  pulseaudio-module-udev \
-                     pulseaudio-module-x11 libasound2-plugins gstreamer0.10-pulseaudio \
-                     ubuntu-sounds pulseaudio-esound-compat alsaplayer-alsa 2>&1 >/dev/null
+# prepare environment
+sudo apt-get install -y lsb-release
+sudo touch /etc/lsb-release
+grep -q DISTRIB_ID=Debian /etc/lsb-release || \
+	sudo sh -c 'echo "DISTRIB_ID=Debian" >> /etc/lsb-release'
 
-if [ `uname -m` = "x86_64" ]; then
-  sudo apt-get install ia32-libs ia32-sun-java6-bin 2>&1 >/dev/null
+# prepare dhcp server
+sudo apt-get install -y dhcp3-server
+if killall -0 dhcpd >/dev/null 2>&1; then
+	true
+else
+	echo "Error: please configure dhcpd server, it won't start on its own :("
+	echo "When you get it running, just restart this script to continue"
+	exit 1
 fi
 
-#sudo apt-get install dhcp3-server
+
+# install additional (minimal) dependencies
+sudo apt-get install -y gdm twm
+cat - <<EOF > /etc/gdm/gdm.conf
+[daemon]
+DefaultPath=/usr/local/bin:/usr/local/sbin:/sbin:/usr/sbin:/bin:/usr/bin:/usr/bin/X11:/usr/games:/opt/SUNWut/bin
+RootPath=/usr/local/bin:/usr/local/sbin:/sbin:/usr/sbin:/bin:/usr/bin:/usr/bin/X11:/usr/games:/opt/SUNWut/bin:/opt/SUNWut/sbin
+PostLoginScriptDir=/etc/opt/SUNWut/gdm/SunRayPostLogin/
+PreSessionScriptDir=/etc/opt/SUNWut/gdm/SunRayPreSession/
+PostSessionScriptDir=/etc/opt/SUNWut/gdm/SunRayPostSession/
+DisplayInitDir=/etc/opt/SUNWut/gdm/SunRayInit
+XKeepsCrashing=/etc/opt/SUNWut/gdm/XKeepsCrashing.sunray
+
+RebootCommand=
+HaltCommand=
+SuspendCommand=
+HibernateCommand=
+
+FlexibleXServers=0
+VTAllocation=false
+DynamicXServers=true
+#Greeter=/usr/lib/gdm/gdmlogin
+
+[security]
+DisallowTCP=true
+
+[xdmcp]
+
+[gui]
+GtkTheme=debian
+GtkThemesToAllow=all
+
+[greeter]
+DefaultWelcome=false
+Welcome=Welcome to %n
+GraphicalThemes=debian-greeter
+SystemMenu=true
+ConfigAvailable=false
+Browser=false
+
+[chooser]
+
+[debug]
+Enable=false
+
+[servers]
+0=inactive
+EOF
+/etc/init.d/gdm start
+
+# auto-accept DLJ
+cat - <<EOF | sudo debconf-set-selections
+sun-java6-bin	shared/accepted-sun-dlj-v1-1	boolean true
+sun-java6-jdk	shared/accepted-sun-dlj-v1-1	boolean true
+sun-java6-jre	shared/accepted-sun-dlj-v1-1	boolean true
+EOF
+
+
+# install all required packages first
+echo -n "Installing required Debian packages... "
+sudo apt-get install -y libldap-2.4-2 libmotif4 module-assistant tk8.4 \
+	sun-java6-jre ldap-utils nscd gawk iputils-ping ksh unzip libgdbm3 \
+	libx11-6 libfreetype6 libsasl2-2 libxt6 zlib1g devscripts \
+	xfonts-base atftpd xfonts-100dpi xfonts-75dpi xfonts-cyrillic wget ed \
+	x11-xserver-utils tcsh alien dnsutils \
+	pavucontrol pavumeter paman padevchooser paprefs pulseaudio \
+	pulseaudio-utils pulseaudio-module-gconf \
+	pulseaudio-module-x11 libasound2-plugins gstreamer0.10-pulseaudio \
+	pulseaudio-esound-compat alsaplayer-alsa
+
+if [ `uname -m` = "x86_64" ]; then
+  sudo apt-get install -y ia32-libs ia32-sun-java6-bin
+
+  # fix-up links to libssl & libcrypto
+  test -f /lib32/libcrypto.so.0.9.8 || \
+	  ln -s /usr/lib32/libcrypto.so.0.9.8 /lib32/libcrypto.so.0.9.8
+  test -f /usr/lib32/libssl.so.0.9.8 || \
+	  ln -s /usr/lib32/libssl.so.0.9.8 /lib32/libssl.so.0.9.8
+fi
+
 echo "ok!"
+
+# fix-ups before SRS install
+mkdir -p /tmp/SUNWut/units
 
 
 ######################
@@ -139,7 +235,7 @@ echo "ok!"
 echo -n "installing /etc/init.d/zsunray-init startup script... "
 sudo cp -a ${CD_INIT}/files/zsunray-init /etc/init.d/
 sudo chmod 755 /etc/init.d/zsunray-init
-sudo update-rc.d -f zsunray-init defaults 99 01 2>&1 >/dev/null
+sudo insserv zsunray-init 2>&1 >/dev/null
 echo "ok!"
 
 ###########
@@ -260,7 +356,28 @@ sudo /opt/SUNWut/sbin/utpolicy -a -m -z both -g -u both
 sudo /opt/SUNWut/sbin/utadm -L on
 sudo /opt/SUNWut/sbin/utstart -c
 
+# enable xkb & xrender
+sudo /opt/SUNWut/bin/utxconfig -a -k on
+sudo /opt/SUNWut/bin/utxconfig -a -n on
+
+# fix up tags in "utsvtreg"
+sudo cp ${CD_INIT}/files/utsvtreg /etc/init.d/
+sudo chmod 755 /etc/init.d/utsvtreg
+
 ###########
 # installation finished!
 echo "installation finished!"
+
+cat - <<EOF
+
+
+You will probably want to use something like:
+
+/opt/SUNWut/sbin/utadm -a eth0
+
+to add interface. And then:
+
+/etc/init.d/zsunray-init restart
+EOF
+
 exit 0

@@ -1,0 +1,45 @@
+#!/bin/ksh -p
+#
+# ident "$Id: utsvtreg.ksh 13 2008-05-21 22:53:18Z mk94373 $ SMI"
+#
+# Copyright 2008 Sun Microsystems, Inc.  All rights reserved.
+# Use is subject to license terms.
+#
+### BEGIN INIT INFO
+# Provides:         utsvtreg
+# Required-Start:       zsunray-init
+# X-UnitedLinux-Should-Start:
+# Required-Stop:
+# X-UnitedLinux-Should-Stop:
+# Default-Start:                
+# Default-Stop:         0 1 2 3 4 5 0
+# Short-Description:
+# Description:          Sun Ray Service Tags Starter
+### END INIT INFO
+# XXX: not started because it's probably not being used. Wejn, 2012-03-26
+
+PATH=/bin:/usr/bin:/sbin:/usr/sbin
+export PATH
+
+###########################################
+# chkconfig header info
+#
+# chkconfig: 5 98 02
+# description: Sun Ray Service Tags Starter
+#
+###########################################
+OS=`uname -s`
+
+/etc/opt/SUNWutsvt/utsvtd "$@" &
+
+if [ $OS = "SunOS" ]; then
+
+	if [ -s /lib/svc/share/smf_include.sh ]; then
+
+		. /lib/svc/share/smf_include.sh
+		exit $SMF_EXIT_OK
+
+	fi
+fi
+
+exit 0

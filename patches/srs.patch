@@ -42,8 +42,8 @@ diff -r -u -N -X /tmp/exclude /opt.orig/SUNWut/lib/dhcp/isc/dhcp_config_linux /o
  
  UTDHCPDIR="$ETCDIR"/net/dhcp
 -DHCPDCONF=/etc/dhcpd.conf
-+if [[ -f "/etc/dhcp3/dhcpd.conf" ]]; then
-+ DHCPDCONF=/etc/dhcp3/dhcpd.conf
++if [[ -f "/etc/dhcp/dhcpd.conf" ]]; then
++ DHCPDCONF=/etc/dhcp/dhcpd.conf
 +else
 + DHCPDCONF=/etc/dhcpd.conf
 +fi
@@ -75,17 +75,17 @@ diff -r -u -N -X /tmp/exclude /opt.orig/SUNWut/lib/dhcp/isc/utdhcpservice /opt/S
  # names of files and directories that will be touched by this script
  #
 -DHCP_CONFIG="/etc/dhcpd.conf";
-+DHCP_CONFIG="/etc/dhcp3/dhcpd.conf";
++DHCP_CONFIG="/etc/dhcp/dhcpd.conf";
  DHCP_CONFIG_SAMPLE_RHAS="/usr/share/doc/dhcp-3.0.1/dhcpd.conf.sample";
  DHCP_CONFIG_SAMPLE_SLES="/usr/share/doc/packages/dhcp-server/dhcpd.conf";
-+DHCP_CONFIG_SAMPLE_DEB="/usr/share/doc/dhcp3-server/examples/dhcpd.conf";
++DHCP_CONFIG_SAMPLE_DEB="/usr/share/doc/isc-dhcp-server/examples/dhcpd.conf";
  TMPDIR="/var/opt/SUNWut/tmp"
  CORONA_NAME="SunRay";
  CORONA_TITLE="Sun Ray";
 -if [ -d /var/lib/dhcp ]; then
 -	DHCP_DIR="/var/lib/dhcp";
-+if [ -d /var/lib/dhcp3 ]; then
-+	DHCP_DIR="/var/lib/dhcp3";
++if [ -d /var/lib/dhcp ]; then
++	DHCP_DIR="/var/lib/dhcp";
  elif [ -d /var/lib/dhcpd ]; then
  	 DHCP_DIR="/var/lib/dhcpd";
  fi
@@ -136,8 +136,8 @@ diff -r -u -N -X /tmp/exclude /opt.orig/SUNWut/lib/dhcp/isc/utdhcpservice /opt/S
      fi
  
 -    /etc/init.d/dhcpd start > /dev/null 2>&1
-+    if [[ -f /etc/init.d/dhcp3-server ]]; then
-+	/etc/init.d/dhcp3-server start > /dev/null 2>&1
++    if [[ -f /etc/init.d/isc-dhcp-server ]]; then
++	/etc/init.d/isc-dhcp-server start > /dev/null 2>&1
 +    else
 +	/etc/init.d/dhcpd start > /dev/null 2>&1
 +    fi
@@ -149,8 +149,8 @@ diff -r -u -N -X /tmp/exclude /opt.orig/SUNWut/lib/dhcp/isc/utdhcpservice /opt/S
      fi
  
 -    /etc/init.d/dhcpd stop > /dev/null 2>&1
-+    if [[ -f /etc/init.d/dhcp3-server ]]; then
-+    	/etc/init.d/dhcp3-server stop > /dev/null 2>&1
++    if [[ -f /etc/init.d/isc-dhcp-server ]]; then
++    	/etc/init.d/isc-dhcp-server stop > /dev/null 2>&1
 +    else
 +    	/etc/init.d/dhcpd stop > /dev/null 2>&1
 +    fi
@@ -162,8 +162,8 @@ diff -r -u -N -X /tmp/exclude /opt.orig/SUNWut/lib/dhcp/isc/utdhcpservice /opt/S
      fi
  
 -    /etc/init.d/dhcpd restart > /dev/null 2>&1
-+    if [[ -f /etc/init.d/dhcp3-server ]]; then
-+    	/etc/init.d/dhcp3-server restart > /dev/null 2>&1
++    if [[ -f /etc/init.d/isc-dhcp-server ]]; then
++    	/etc/init.d/isc-dhcp-server restart > /dev/null 2>&1
 +    else
 +    	/etc/init.d/dhcpd restart > /dev/null 2>&1
 +    fi
@@ -197,8 +197,8 @@ diff -r -u -N -X /tmp/exclude /opt.orig/SUNWut/lib/dhcp/isc/utdhcpservice /opt/S
      	fi
  
 -    	/etc/init.d/dhcpd status 2> /dev/null | grep "running" >/dev/null 2>&1
-+    	if [[ -f "/etc/init.d/dhcp3-server" ]]; then
-+		/etc/init.d/dhcp3-server status 2> /dev/null | grep "running" >/dev/null 2>&1
++    	if [[ -f "/etc/init.d/isc-dhcp-server" ]]; then
++		/etc/init.d/isc-dhcp-server status 2> /dev/null | grep "running" >/dev/null 2>&1
 +    	else
 +		/etc/init.d/dhcpd status 2> /dev/null | grep "running" >/dev/null 2>&1
 +    	fi
@@ -892,15 +892,15 @@ diff -r -u -N -X /tmp/exclude /opt.orig/SUNWut/sbin/utadm /opt/SUNWut/sbin/utadm
  		  NETWORKS="${ETC_OPT_UT}/net/networks";
  		fi
 -		DHCPCONFIG="/etc/dhcpd.conf"
-+		if [[ -f "/etc/dhcp3/dhcpd.conf" ]]; then
-+		  DHCPCONFIG="/etc/dhcp3/dhcpd.conf"
++		if [[ -f "/etc/dhcp/dhcpd.conf" ]]; then
++		  DHCPCONFIG="/etc/dhcp/dhcpd.conf"
 +		else
 +		  DHCPCONFIG="/etc/dhcpd.conf"
 +		fi
  		GREP=grep	# XXX need to figure out which <===
 -		INIT_DHCP="/etc/init.d/dhcpd";
-+		if [[ -f "/etc/init.d/dhcp3-server" ]]; then
-+		  INIT_DHCP="/etc/init.d/dhcp3-server"
++		if [[ -f "/etc/init.d/isc-dhcp-server" ]]; then
++		  INIT_DHCP="/etc/init.d/isc-dhcp-server"
 +		else
 +		  INIT_DHCP="/etc/init.d/dhcpd";
 +		fi
@@ -1039,8 +1039,8 @@ diff -r -u -N -X /tmp/exclude /opt.orig/SUNWut/sbin/utadm /opt/SUNWut/sbin/utadm
  		lease_file=/var/lib/dhcpd/dhcpd.leases
  	elif [ -f /var/lib/dhcp/db/dhcpd.leases ]; then
                  lease_file=/var/lib/dhcp/db/dhcpd.leases
-+	elif [ -f /var/lib/dhcp3/dhcpd.leases ]; then
-+                lease_file=/var/lib/dhcp3/dhcpd.leases
++	elif [ -f /var/lib/dhcp/dhcpd.leases ]; then
++                lease_file=/var/lib/dhcp/dhcpd.leases
          fi
  
  	rm -f $tmp_leases
@@ -1078,8 +1078,8 @@ diff -r -u -N -X /tmp/exclude /opt.orig/SUNWut/sbin/utconfig /opt/SUNWut/sbin/ut
      #
      ETCSERVICES="/etc/services"
 -    DHCPCONFIG="/etc/dhcpd.conf"
-+    if [[ -f "/etc/dhcp3/dhcpd.conf" ]]; then
-+      DHCPCONFIG="/etc/dhcp3/dhcpd.conf"
++    if [[ -f "/etc/dhcp/dhcpd.conf" ]]; then
++      DHCPCONFIG="/etc/dhcp/dhcpd.conf"
 +    else
 +      DHCPCONFIG="/etc/dhcpd.conf"
 +    fi
