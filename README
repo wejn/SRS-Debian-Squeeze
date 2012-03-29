@@ -2,21 +2,10 @@ SunRay Server on Debian/Linux installation package
 ==================================================
 
 This package is trying to provide all necessary stuff that is required
-<<<<<<< HEAD
 to install the SunRay Software (SRS) on an Debian Squeeze (6.0.4). In
 fact, it is the attempt to provide a kind of a 'package' that has
 everything embedded to get the SRS installed on Debian/Linux with just
 a single shell script execution (or two).
-
-It assumes clean install and will pull in all necessary packages WITHOUT
-asking for explicit confirmation. Use at your own risk; and do first
-install on a test installation before pushing it into production(!)
-=======
-to install the SunRay Software (SRS) on an Debian/Linux server. In fact,
-it is the attempt to provide a kind of a 'package' that has everything
-embedded to get the SRS installed on Debian/Linux with just a single
-shell script execution.
->>>>>>> 28e9490fd00d1db3c42f70391fd963cf62cff320
 
 It assumes clean install and will pull in all necessary packages WITHOUT
 asking for explicit confirmation. Use at your own risk; and do first
