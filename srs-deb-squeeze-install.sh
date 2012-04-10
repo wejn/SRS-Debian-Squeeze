@@ -146,7 +146,7 @@ if [ `uname -m` = "x86_64" ]; then
   # fix-up links to libssl & libcrypto
   test -f /lib32/libcrypto.so.0.9.8 || \
 	  ln -s /usr/lib32/libcrypto.so.0.9.8 /lib32/libcrypto.so.0.9.8
-  test -f /usr/lib32/libssl.so.0.9.8 || \
+  test -f /lib32/libssl.so.0.9.8 || \
 	  ln -s /usr/lib32/libssl.so.0.9.8 /lib32/libssl.so.0.9.8
 fi
 
